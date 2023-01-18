@@ -8,10 +8,13 @@ project(hydrone_aerial_deep_rl)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  gazebo_ros
   roscpp
   rospy
   std_msgs
 )
+
+find_package(gazebo REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -103,28 +106,44 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  INCLUDE_DIRS include ${GAZEBO_INCLUDE_DIRS}
+  LIBRARIES  ActorCollisionsPlugin
+  CATKIN_DEPENDS roscpp
 #  INCLUDE_DIRS include
 #  LIBRARIES hydrone_aerial_underwater_ddpg
 #  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+  DEPENDS gazebo_ros
 )
 
 ###########
 ## Build ##
 ###########
-
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_FLAGS "-std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "-std=c++0x")
+else()
+    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+link_directories(${GAZEBO_LIBRARY_DIRS})
 include_directories(
-# include
+  include
+  ${Boost_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/hydrone_aerial_underwater_ddpg.cpp
 # )
-
+add_library(ActorCollisionsPlugin src/ActorCollisionsPlugin.cc)
+target_link_libraries(ActorCollisionsPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
