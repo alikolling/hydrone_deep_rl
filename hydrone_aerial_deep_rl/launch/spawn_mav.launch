@@ -6,8 +6,8 @@
   <arg name="model" default="$(find hydrone_aerial_description)/urdf/$(arg mav_name)_base.xacro"/>
   <arg name="tf_prefix" default="$(optenv ROS_NAMESPACE)"/>
   <arg name="x" default="0.0"/>
-  <arg name="y" default="0.0"/>
-  <arg name="z" default="2.5"/>
+  <arg name="y" default="-5.0"/>
+  <arg name="z" default="1.0"/>
   <arg name="enable_logging" default="false"/>
   <arg name="enable_ground_truth" default="false"/>
   <arg name="log_file" default="$(arg mav_name)"/>
